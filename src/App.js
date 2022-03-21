@@ -1,75 +1,133 @@
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components'
+const { datesGenerator } = require('dates-generator');
 
-function App() {
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-  
+const Container = styled.div`
+  width: 300px;
+  border: 1px solid black;
+  margin: 0 auto;
+`
+
+const MonthText = styled.div`
+  font-size: 26px;
+  font-weight: bold;
+  text-align: center;
+`
+
+const App = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dates, setDates] = useState([]);
+  const [calendar, setCalendar] = useState({
+    month: selectedDate.getMonth(),
+    year: selectedDate.getFullYear(),
+  });
+
+
+  useEffect(() => {
+    const body = {
+      month: calendar.month,
+      year: calendar.year
+    };
+    const { dates, nextMonth, nextYear, previousMonth, previousYear } = datesGenerator(body);
+    console.log(datesGenerator(body))
+    setDates([ ...dates ]);
+    setCalendar({
+      ...calendar,
+      nextMonth,
+      nextYear,
+      previousMonth,
+      previousYear
+    });
+  }, [])
+
+  const onClickNext = () => {
+    const body = { month: calendar.nextMonth, year: calendar.nextYear };
+    const { dates, nextMonth, nextYear, previousMonth, previousYear } = datesGenerator(body);
+
+    setDates([ ...dates ]);
+    setCalendar({
+      ...calendar,
+      month: calendar.nextMonth,
+      year: calendar.nextYear,
+      nextMonth,
+      nextYear,
+      previousMonth,
+      previousYear
+    });
+  }
+
+  const onClickPrevious = () => {
+    const body = { month: calendar.previousMonth, year: calendar.previousYear };
+    const { dates, nextMonth, nextYear, previousMonth, previousYear } = datesGenerator(body);
+
+    setDates([ ...dates ]);
+    setCalendar({
+      ...calendar,
+      month: calendar.previousMonth,
+      year: calendar.previousYear,
+      nextMonth,
+      nextYear,
+      previousMonth,
+      previousYear
+    });
+  }
+
+  const onSelectDate = (date) => {
+    setSelectedDate(new Date(date.year, date.month, date.date))
+  }
 
   return (
-    <div className="App">
-        <h1>Calendar </h1>
-        <h2> March</h2>
-        <table>
-          <thead>
-          <tr>
-            <th>Sunday</th>
-            <th>Monday</th>
-            <th>Tuesday</th>
-            <th>Wednesday</th>
-            <th>Thursday</th>
-            <th>Friday</th>
-            <th>Saturday</th>
-        </tr>
-        </thead>
-          <tbody>
-            <tr>
-              <td></td>
-              <td></td>
-              <td>1</td>
-              <td>2</td>
-              <td>3</td>
-              <td>4</td>
-              <td>5</td>
-            </tr>
-            <tr>
-              <td>6</td>
-              <td>7</td>
-              <td>8</td>
-              <td>9</td>
-              <td>10</td>
-              <td>11</td>
-              <td>12</td>
-            </tr>
-            <tr>
-              <td>13</td>
-              <td>14</td>
-              <td>15</td>
-              <td>16</td>
-              <td>17</td>
-              <td>18</td>
-              <td>19</td>
-            </tr>
-            <tr>
-              <td>20</td>
-              <td>21</td>
-              <td>22</td>
-              <td>23</td>
-              <td>24</td>
-              <td>25</td>
-              <td>26</td>
-            </tr>
-            <tr>
-              <td>27</td>
-              <td>28</td>
-              <td>29</td>
-              <td>30</td>
-              <td>31</td>
-              <td></td>
-              <td></td>
-            </tr>
-          </tbody>
-      </table>
+    <div style={{ width: '100%', paddingTop: 50 }}>
+      <Container>
+        <div style={{ padding: 10 }}>
+          <div onClick={onClickPrevious} style={{ float: 'left', width: '50%' }}>
+            Previous
+          </div>
+          <div onClick={onClickNext} style={{ float: 'left', width: '50%', textAlign: 'right' }}>
+            Next
+          </div>
+        </div>
+        <MonthText>
+          {months[calendar.month]}
+        </MonthText>
+        <div>
+          
+            <div>
+              <table style={{ width: '100%' }}>
+                <tbody>
+                  <tr>
+                    {days.map((day) => (
+                      <td key={day} style={{ padding: '5px 0' }}>
+                        <div style={{ textAlign: 'center', padding: '5px 0' }}>
+                          {day}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
 
-
+                  {dates.length > 0 && dates.map((week) => (
+                    <tr key={JSON.stringify(week[0])}>
+                      {week.map((each) => (
+                        <td key={JSON.stringify(each)} style={{ padding: '5px 0' }}>
+                          <div onClick={() => onSelectDate(each)} style={{ textAlign: 'center', padding: '5px 0' }}>
+                            {each.date}
+                          </div>
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+         
+        </div>
+        <div style={{ padding: 10 }}>
+          Selected Date: {selectedDate.toLocaleString()}
+        </div>
+      </Container>
     </div>
   );
 }
